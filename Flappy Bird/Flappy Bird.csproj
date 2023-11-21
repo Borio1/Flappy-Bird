@@ -65,6 +65,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -78,6 +79,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_bird_body.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_bird_body_wing_up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_bird_additions_2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_bird_additions_mouth_open_2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_pipe_body_flipped.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_pipe_top_flipped.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_pipe_top.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_pipe_body_3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flappy_clouds.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

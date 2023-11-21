@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace Flappy_Bird
 {
+    
     public partial class Form1 : Form
     {
         public Form1()
@@ -25,51 +26,47 @@ namespace Flappy_Bird
         public Boolean lost = true;
         public Boolean passed = false;
         public Random random = new Random();
-        PictureBox[] pipes = new PictureBox[3];
+        public List<Pipe> pipes = new List<Pipe>();
         public void time_Tick(object sender, EventArgs e)
         {
             a = a - 1;
+            if (a < 0)
+            {
+                bird.Image = Flappy_Bird.Properties.Resources.flappy_bird_body_wing_up;
+                additions.Image = Flappy_Bird.Properties.Resources.flappy_bird_additions_mouth_open_2;
+            }
             Score.Text = "Score: " + score;
             moveBird();
             movePipe();
             check();
 
         }
-        void makePipes()
+        void makePipe()
         {
-
-        }
-        void makeTopPipe()
-        {
-            height = random.Next(440 - gap);
-            topPipe.Size = new Size(60, 600);
-            topPipe.Location = new Point(1100, -560 + height);
-            topPipeTip.Size = new Size(90, 60);
-            topPipeTip.Location = new Point(topPipe.Location.X - (topPipeTip.Width - topPipe.Width)/2, topPipe.Location.Y + topPipe.Height);
-        }
-        void makeBottomPipe()
-        {
-            gap = 160;
-            bottomPipe.Size = new Size(60, 750);
-            bottomPipe.Location = new Point(topPipe.Location.X, topPipe.Location.Y + topPipe.Height + topPipeTip.Height + bottomPipeTip.Height + gap);
-            bottomPipeTip.Size = new Size(90, 60);
-            bottomPipeTip.Location = new Point(bottomPipe.Location.X - (bottomPipeTip.Width - bottomPipe.Width) / 2, topPipe.Location.Y + topPipe.Height + topPipeTip.Height + gap);
+            pipes.Add(new Pipe(-300, 160));
         }
         void lose()
         {
             bird.Location = new Point(50, 270);
-            additions.Location = new Point(bird.Location.X - 9, bird.Location.Y + 9); 
-            makeTopPipe();
-            makeBottomPipe();
+            additions.Location = new Point(bird.Location.X - 9, bird.Location.Y + 9);
+            pipes.Clear();
+            makePipe();
             score = 0;
         }
         void check()
         {
-            if (bird.Bounds.IntersectsWith(topPipe.Bounds) || bird.Bounds.IntersectsWith(bottomPipe.Bounds) || bird.Bounds.IntersectsWith(topPipeTip.Bounds) || bird.Bounds.IntersectsWith(bottomPipeTip.Bounds) || bird.Location.Y >= 620)
+            for (int i = 0; i < pipes.Count; i++)
             {
-                time.Stop();
-                lost = true;
+                for(int x = 0; x < 4; x++)
+                {
+                    if (bird.Bounds.IntersectsWith(pipes[i].getPipe()[x].Bounds) || bird.Location.Y >= 620)
+                    {
+                        time.Stop();
+                        lost = true;
+                    }
+                }
             }
+            
         }
         void moveBird()
         {
@@ -87,28 +84,19 @@ namespace Flappy_Bird
         }
         void movePipe()
         {
-            topPipe.Left -= 7;
-            bottomPipe.Left -= 7;
-            topPipeTip.Left -= 7;
-            bottomPipeTip.Left -= 7;
-
-            if(topPipe.Left <= -90)
+            for (int i = 0; i < pipes.Count; i++)
             {
-                makeTopPipe();
-                makeBottomPipe();
-                passed = false;
-            }
-            if (topPipe.Left <= 0 && !passed)
-            {
-                passed = true;
-                score++;
+                pipes[i].movePipe(7);
             }
         }
+        
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space) 
             {
                 a = 15;
+                bird.Image = Flappy_Bird.Properties.Resources.flappy_bird_body;
+                additions.Image = Flappy_Bird.Properties.Resources.flappy_bird_additions_2;
                 if (lost)
                 {
                     lost = false;
@@ -120,19 +108,71 @@ namespace Flappy_Bird
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            makeTopPipe();
-            makeBottomPipe();
+            makePipe();
 
             bird.BringToFront();
 
-            topPipe.BringToFront();
-            topPipeTip.BringToFront();
-            bottomPipe.BringToFront();
-            bottomPipeTip.BringToFront();
+            for(int i = 0; i < 4; i++)
+            {
+                pipes[0].getPipe()[i].BringToFront();
+            }
+        }
+    }
+    public class Pipe
+    {
+        private PictureBox[] pipe;
+        private int height;
+        private int gap;
+        
+        public Pipe(int height, int gap)
+        {
+            this.height = height;
+            this.gap = gap;
 
-            bird.Image = bird.png;
+            this.pipe = new PictureBox[4];
 
+            for(int i = 0; i < 4; i++)
+            {
+                pipe[i] = new PictureBox();
+                pipe[i].BackColor = Color.Transparent;
+                pipe[i].Visible = true;
+                pipe[i].Enabled = true;
+                pipe[i].Show();
+                pipe[i].Refresh();
+                pipe[i].WaitOnLoad = true;
+            }
+            pipe[0].Image = Flappy_Bird.Properties.Resources.flappy_pipe_body_flipped;
+            pipe[1].Image = Flappy_Bird.Properties.Resources.flappy_pipe_top_flipped;
+            pipe[2].Image = Flappy_Bird.Properties.Resources.flappy_pipe_top;
+            pipe[3].Image = Flappy_Bird.Properties.Resources.flappy_pipe_body_3;
 
+            pipe[0].Location = new Point(1200, height);
+            pipe[1].Location = new Point(pipe[0].Location.X, height + pipe[0].Height);
+            pipe[2].Location = new Point(pipe[0].Location.X, pipe[1].Location.Y + pipe[0].Height + gap);
+            pipe[3].Location = new Point(pipe[0].Location.X, pipe[1].Location.Y + pipe[1].Height);
+
+            pipe[0].Size = new Size(60, 600);
+            pipe[1].Size = new Size(90, 60);
+            pipe[2].Size = new Size(90, 60);
+            pipe[3].Size = new Size(60, 600);
+        }
+        public void movePipe(int x)
+        {
+            for (int i = 0; i < pipe.Length; i++)
+            {
+                pipe[i].Left -= x;
+            }
+        }
+        public void removePipe()
+        {
+            for (int i = 0; i < pipe.Length; i++)
+            {
+                pipe[i] = null;
+            }
+        }
+        public PictureBox[] getPipe()
+        {
+            return pipe;
         }
     }
 }
